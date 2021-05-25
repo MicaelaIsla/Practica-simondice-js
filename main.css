@@ -1,0 +1,17 @@
+.cuadro {
+  height: 200px;
+  opacity: 0.5;
+  transition: opacity 500ms;
+}
+#cuadro-1 {
+  background-color: #e423b5;
+}
+#cuadro-2 {
+  background-color: #2398e4;
+}
+#cuadro-3 {
+  background-color: #a9c287;
+}
+#cuadro-4 {
+  background-color: #eca222;
+}
