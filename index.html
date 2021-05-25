@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" 
+    content="width=device-width, initial-scale=1.0" />
+   
+    <title>Simon dice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel= "stylesheet"  href= "css/main.css">
+</head>
+
+  <body>
+
+    <!-- ##### NAV BAR ##### -->
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-success fixed-top">
+      <a class="navbar-brand" target="_blank" href="//parzibyte.me/blog"
+        >Simon says </a
+      >
+      <div class="collapse navbar-collapse" id="menu">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            
+          </li>
+        </ul>
+      </div>
+    </nav>
+ <button type="button" class="btn btn-success">Comenzar juego</button>
+
+<div class="container">
+    <div class="row"
+    <div class="col-sm-8">
+        <div class="alert alert-primary" role="alert" id="estado">    </div>
+    </div>  
+<div class="col-sm-2">
+    <p>Ronda  # </p>
+</div>
+<div class="col-sm-2">
+    <button type="button" class="btn btn-primary">Empezar</button>
+</div>
+</div>
+</div>
+
+
+ <!-- ##### cuadros de colores ##### -->
+
+<div class="container" id="tablero">
+    <div class="row">
+        <div class="col-sm"
+        <div id="cuadro-1" class="cuadro">A</div>
+    </div>
+    <div class="col-sm"
+        <div id="cuadro-2" class="cuadro">B</div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm"
+    <div id="cuadro-3" class="cuadro">C</div>
+</div>
+<div class="col-sm"
+    <div id="cuadro-4" class="cuadro">D</div>
+</div>
+</div>
+</div>
+
+
+
+<!-- ##### comienza parte js   ##### --> 
+
+<script type="text/javascript">
+let secuenciaMaquina = [];
+let secuenciaUsuario = [];
+let ronda=0;
+
+document.querySelector ('button[type=button]').onClick = comenzarJuego;
+
+actualizarEstado ('Toca "Empezar' para jugar!');
+actualizarNumeroRonda ('-');
+bloquearInputUsuario ();
+
+function comenzarJuego (){
+    reinciarEstado ();
+    manejarRonda();
+}
+
+function reiniciarEstado (){
+    secuenciaMaquina =[]
+    secuenciaUsuario = []
+     ronda=0 
+}
+
+<!-- ##### Comienza funcion para menejar la ronda ##### -->
+
+<!-- ##### actualiza el estado y es el turno de la maquina ##### -->
+function manejarRonda () {
+    actualizarEstado ('Turno de la maquina');
+    bloquearInputUsuario();
+
+
+    <!-- ##### obtiene un cuadro aleatorio y lo agrega con push a la secuencia ##### -->
+const $nuevoCuadro= obtenerCuadroAleatorio ();
+secuenciaMaquina.push($nuevoCuadro);
+
+
+<!-- ##### calcula en cuanto tiempo juega el jugador ##### -->
+
+const RETRASO_TURNO_JUGADOR= (secuenciaMaquina.length +1)*1000;
+
+
+<!-- ##### hace que cada uno de los cuadros se resalten  ##### -->
+
+secuenciaMaquina.forEach (function($cuadro, index) {
+    const RETRASO_MS = (index + 1)*1000;
+    setTimeout (function() {
+        resaltar($cuadro);
+    }; RETRASO_MS);
+    });
+
+    <!-- ##### Settea en que momento le toca jugar al jugador, le avisa que es tu turno y le desbloquea el usuario  ##### -->
+   
+    setTimeout (function() {
+        actualizarEstado ('Turno del jugador');
+        desbloquearInputUsuario ();
+    }, RETRASO_TURNO_JUGADOR )
+
+
+    <!-- ##### Resetea la secuencia de colores del usuario a cero, la aumenta y la actualiza##### -->
+
+    secuenciaUsuario = [];
+    ronda++;
+    actualizarNumeroRonda(ronda);
+}
+
+<!-- ##### Toma parametro evento y vemos el target q le hicimos click al cuadro 3 - sirve para identificar que cuadro puntual tocamos - resalta cuadros x eso es $$  ##### --> 
+
+
+
+function manejarInputUsuario (e) {
+    const $cuadro = e.target;
+    resaltar ($cuadro);
+    secuenciaUsuario.push($cuadro);
+
+
+
+const $cuadroMaquina= secuenciaMaquina [secuenciaUsuario.length-1]; 
+if ($cuadro.id !== $cuadroMaquina.id) {
+    perder();
+    return;
+}
+
+if (secuenciaUsuario.length === secuenciaMaquina.length) {
+    bloquearInputUsuario ();
+    setTimeout (manejarRonda,1000);
+}
+}
+
+function obtenerCuadroAleatorio() {
+const $cuadros =document.querySelectorAll ('$cuadro');
+const indice = Math.floor(Math.random() = $cuadros.length);
+return $cuadros [indice];
+}
+
+
+
+
+function actualizarNumeroRonda (ronda) {
+    document.querySelector ('#ronda').textContent = ronda;
+}
+
+function actualizarEstado (estado, error =false) {
+    const $estado = document.querySelector ('#estado');
+    $estado.textContent = estado;
+    if (error){
+        $estado.classList.remove ('alert-primary');
+        $estado.classList.add ('alert-danger');   
+    } else{
+        $estado.classList.remove ('alert-danger');
+        $estado.classList.add ('alert-primary');   
+    }
+}
+
+
+<!-- ##### Toma elemento $ cuadro  , le settea la opacidad a 1 y unos milisegundos despues a 0.5   ##### --> 
+
+function resaltar ($cuadro) {
+    $cuadro.style.opacity=1;
+    setTimeout (function() {
+        $cuadro.style.opacity=0.5;
+        } , 500); 
+}
+
+<!-- ##### Agarra cada cuadro, por cada cuadro agarra la funcion , toma como parametro cada elemento del array  ##### --> 
+<!-- ##### la primera vez que se ejecuta el callback, aca lo ejecuta 4 veces, cuando le hace click lo settea a una funcion vacia x eso la llave parentesis vacio ##### -->
+
+function bloquearInputUsuario () {
+    document.querySelectorAll ('.cuadro'). forEach(function($cuadro){
+        $cuadro.onclick = function() {
+
+        };
+    });
+}
+
+
+<!-- ##### Dame todos los elementos que tengan clase cuadro y x cada uno de ellos, se settea la funcion manejar input usaruio  , aca la llave tiene la funcion  ##### --> 
+
+function desbloquearInputUsuario () {
+    document.querySelectorAll('.cuadro').forEach (function($cuadro) {
+        $cuadro.onclick = manejarInputUsuario;
+    });
+}
+
+
+function perder () {
+    bloquearInputUsuario ();
+    actualizarEstado ('Perdiste! toca "Empezar" para jugar de nuevo!', true);
+}
+</script>
+</body>
+</html>
